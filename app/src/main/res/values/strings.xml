@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Calculo Combustível</string>
+    <string name="gasolina_ou_etanol">Gasolina ou Etanol</string>
+    <string name="pre_o_etanol">Preço Etanol:</string>
+    <string name="valor_litro_do_etanol">Valor litro do etanol</string>
+    <string name="pre_o_da_gasolina">Preço da Gasolina:</string>
+    <string name="valor_litro_da_gasolina">Valor litro da gasolina</string>
+    <string name="calcular">Calcular</string>
+</resources>
