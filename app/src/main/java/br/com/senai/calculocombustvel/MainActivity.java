@@ -8,8 +8,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.view.inputmethod.InputMethodManager;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +22,13 @@ public class MainActivity extends AppCompatActivity
 
     private EditText etValorEtanol;
     private EditText etValorGasolina;
+    private ImageButton ibAvancar;
+    private ImageButton ibVoltar;
     private Button btCalcular;
     private TextView tvResultado;
     private SharedPreferences pref;
-    private final String KEY_ETANOL = "valor_etanol";
-    private final String KEY_GASOLINA = "valor_gasolina";
-    private final String KEY_PERCENTUAL = "percentual";
+    private List<CombustivelHistorico> lista = new ArrayList<>();
+    private final String KEY_LISTA = "key_lista";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,10 @@ public class MainActivity extends AppCompatActivity
         btCalcular = findViewById(R.id.btCalcular);
         btCalcular.setOnClickListener(this);
         tvResultado = findViewById(R.id.tvResultado);
+        ibAvancar = findViewById(R.id.imRight);
+        ibAvancar.setOnClickListener(this);
+        ibVoltar = findViewById(R.id.ibLeft);
+        ibVoltar.setOnClickListener(this);
 
         exibirHistorico();
     }
@@ -78,23 +86,37 @@ public class MainActivity extends AppCompatActivity
                     valorGasolina, percentual);
 
             exibirHistorico();
+        } else if (view.getId() == R.id.imRight) {
+            // avançar
+            // ler a lista de informações
+            // navegar até o proximo registro da lista
+            // exibir as informações na tela
+        } else if (view.getId() == R.id.ibLeft) {
+            // voltar
+            // ler a lista de informações
+            // navegar para o registro anterior da lista
+            // exibir as informações na tela
         }
     }
 
     private void armazenarInformacoes(float valorEtanol,
                                       float valorGasolina,
                                       float percentual) {
+        Gson gson = new Gson();
+        CombustivelHistorico ch = new
+                CombustivelHistorico("", valorEtanol,
+                                    valorGasolina,
+                                    percentual);
+        lista.add(ch);
+
+        String listaString = gson.toJson(lista);
+
         SharedPreferences.Editor editor = pref.edit();
-        editor.putFloat(KEY_ETANOL, valorEtanol);
-        editor.putFloat(KEY_GASOLINA, valorGasolina);
-        editor.putFloat(KEY_PERCENTUAL, percentual);
+        editor.putString(KEY_LISTA, listaString);
         editor.apply();
     }
 
-    private void exibirHistorico() {
-        float ve = pref.getFloat(KEY_ETANOL, 0.00f);
-        float vg = pref.getFloat(KEY_GASOLINA, 0.0f);
-        float pe = pref.getFloat(KEY_PERCENTUAL, 0.0f);
+    private void exibirHistorico(float ve, float vg, float pe) {
 
         TextView tvEtanolResultado = findViewById(R.id.tvEtanolResultado);
         TextView tvGasolinaResultado = findViewById(R.id.tvGasolinaResultado);
