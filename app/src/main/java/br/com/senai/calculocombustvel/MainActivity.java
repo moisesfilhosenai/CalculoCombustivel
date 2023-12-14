@@ -13,7 +13,9 @@ import android.widget.TextView;
 import android.view.inputmethod.InputMethodManager;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity
     private SharedPreferences pref;
     private List<CombustivelHistorico> lista = new ArrayList<>();
     private final String KEY_LISTA = "key_lista";
+    private int indiceDaLista = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +49,6 @@ public class MainActivity extends AppCompatActivity
         ibAvancar.setOnClickListener(this);
         ibVoltar = findViewById(R.id.ibLeft);
         ibVoltar.setOnClickListener(this);
-
-        exibirHistorico();
     }
 
     @Override
@@ -85,17 +86,44 @@ public class MainActivity extends AppCompatActivity
             armazenarInformacoes(valorEtanol,
                     valorGasolina, percentual);
 
-            exibirHistorico();
+            exibirHistorico(valorEtanol, valorGasolina, percentual);
+
         } else if (view.getId() == R.id.imRight) {
             // avançar
-            // ler a lista de informações
-            // navegar até o proximo registro da lista
-            // exibir as informações na tela
+            buscarInformacoes();
+
+            boolean possoIrParaFrente = lista.size() > indiceDaLista;
+
+            if (possoIrParaFrente) {
+
+                CombustivelHistorico ch = lista.get(indiceDaLista);
+                exibirHistorico(ch.getValorEtanol(),
+                        ch.getValorGasolina(),
+                        ch.getPercentual());
+
+                boolean estouNoFinalDaLista = (lista.size() -1) == indiceDaLista;
+
+                if (!estouNoFinalDaLista) {
+                    indiceDaLista++;
+                }
+            }
+
+
         } else if (view.getId() == R.id.ibLeft) {
             // voltar
-            // ler a lista de informações
-            // navegar para o registro anterior da lista
-            // exibir as informações na tela
+            buscarInformacoes();
+
+            boolean possoIrParaTras = indiceDaLista >= 0;
+
+            if (possoIrParaTras) {
+                CombustivelHistorico ch = lista.get(indiceDaLista);
+                exibirHistorico(ch.getValorEtanol(),
+                        ch.getValorGasolina(), ch.getPercentual());
+
+                if (indiceDaLista > 0) {
+                    indiceDaLista--;
+                }
+            }
         }
     }
 
@@ -125,5 +153,13 @@ public class MainActivity extends AppCompatActivity
         tvEtanolResultado.setText(String.format("Etanol R$ %.2f", ve));
         tvGasolinaResultado.setText(String.format("Gasolina R$ %.2f", vg));
         tvPercentual.setText(String.format("Percentual %.2f %%", pe));
+    }
+
+    private void buscarInformacoes() {
+        String listaString = pref.getString(KEY_LISTA, "");
+        Gson gson = new Gson();
+        Type listaType = new
+                TypeToken<ArrayList<CombustivelHistorico>>(){}.getType();
+        lista = gson.fromJson(listaString, listaType);
     }
 }
